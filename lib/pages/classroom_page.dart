@@ -33,13 +33,9 @@ class _ClassroomPageState extends State<ClassroomPage> {
   ClassState _classState = ClassState.inClass;
   late final MqttServerClient client;
 
-  List<Student> students = [
-    Student(nome: 'Guilherme', matricula: 'GEC-1940'),
-    Student(nome: 'Eduardo', matricula: 'GEC-1939'),
-    Student(nome: 'Alexandre', matricula: 'GES-1254'),
-  ];
+  List<Student> students = [];
 
-  Future<void> _generateExcel(List<Student> students, String classRoomName) async {
+  Future<void> _generateExcel(List<Student> students, String classRoomName, String description) async {
     // criando planilha do excel
     final excel = Excel.createExcel();
     // acessando e formatando a data do dispositivo
@@ -49,6 +45,8 @@ class _ClassroomPageState extends State<ClassroomPage> {
 
     // inicia colunas
     final Sheet sheet = excel[spreadsheetName];
+    sheet.appendRow(['Aula', spreadsheetName]);
+    sheet.appendRow(['Descrição', description]);
     sheet.appendRow(['Nome', 'Matricula']);
 
     // adiciona todas as linhas com os nomes e matriculas do aluno
@@ -100,7 +98,7 @@ class _ClassroomPageState extends State<ClassroomPage> {
             elevation: 3,
           ),
           onPressed: () async {
-            await _generateExcel(students, widget.classRoomName);
+            await _generateExcel(students, widget.classRoomName, widget.classRoomDesc);
             
             if (context.mounted) {
               Navigator.pushAndRemoveUntil(
@@ -147,7 +145,7 @@ class _ClassroomPageState extends State<ClassroomPage> {
       client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
         final message = c[0].payload as MqttPublishMessage;
         final payload = MqttPublishPayload.bytesToStringAsString(message.payload.message);
-        final Map<String, String> data = jsonDecode(payload);
+        final Map<String, dynamic> data = jsonDecode(payload);
         setState(() {
           // cria novo student e envia pra lista students
           students.add(Student(nome: data['nome']!, matricula: data['matricula']!));
