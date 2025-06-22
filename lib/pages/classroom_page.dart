@@ -84,6 +84,7 @@ class _ClassroomPageState extends State<ClassroomPage> {
           ),
           onPressed: () {
             setState(() {
+              client.disconnect();
               _classState = ClassState.endedClass;
             });
           },
