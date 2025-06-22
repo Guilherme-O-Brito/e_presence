@@ -87,6 +87,14 @@ void playErrorSound() {
     digitalWrite(LED_VM, LOW);
 }
 
+// verifica se a matricula lida ja não registrou presença antes
+bool checkMatricula(String matricula) {
+    const char* matriculaStr = matricula.c_str();
+    for (int i=0;i<200;i++) 
+        if (strcmp(matricula.c_str(), matriculas[i].c_str())) return true;
+    return false;
+}
+
 // le a tag encontrada pelo sensor e envia a nome e matricula via mqtt
 void readNFC() {
     byte nome_buffer[18];
@@ -123,6 +131,11 @@ void readNFC() {
             return;
         }
     } else {
+        playErrorSound();
+        return;
+    }
+
+    if (checkMatricula(matricula)) {
         playErrorSound();
         return;
     }
