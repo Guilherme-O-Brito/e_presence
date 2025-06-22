@@ -11,9 +11,11 @@ import 'package:share_plus/share_plus.dart';
 class ClassroomPage extends StatefulWidget {
   final String classRoomName;
   final String classRoomDesc;
+  final String roomName;
 
   const ClassroomPage({
     required this.classRoomName,
+    required this.roomName,
     required this.classRoomDesc,
     super.key,
   });

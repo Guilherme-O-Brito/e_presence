@@ -12,11 +12,13 @@ class _CreateClassroomState extends State<CreateClassroom> {
   final _formKey = GlobalKey<FormState>();
   final _classRoomName = TextEditingController();
   final _classRoomDesc = TextEditingController();
+  final _roomName = TextEditingController();
 
   @override
   void dispose() {
     _classRoomName.dispose();
     _classRoomDesc.dispose();
+    _roomName.dispose();
     super.dispose();
   }
 
@@ -24,8 +26,9 @@ class _CreateClassroomState extends State<CreateClassroom> {
     if (_formKey.currentState!.validate()) {
       String name = _classRoomName.text;
       String desc = _classRoomDesc.text;
+      String room = _roomName.text;
 
-      Navigator.push(context, MaterialPageRoute(builder: (context) => ClassroomPage(classRoomName: name, classRoomDesc: desc)));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => ClassroomPage(classRoomName: name, roomName: room, classRoomDesc: desc)));
     }
   }
 
@@ -67,6 +70,19 @@ class _CreateClassroomState extends State<CreateClassroom> {
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'Informe o nome da aula';
+                        } 
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: _roomName,
+                      style: TextStyle(fontSize: 22),
+                      decoration: InputDecoration(
+                        label: const Text('Sala de Aula'),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Informe a sala de aula';
                         } 
                         return null;
                       },
