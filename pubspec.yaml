@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  mqtt_client: ^10.0.0
   excel: ^2.1.0
   path_provider: ^2.1.5
   share_plus: ^7.2.1
