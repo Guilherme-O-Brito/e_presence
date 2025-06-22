@@ -20,14 +20,14 @@ MFRC522 rfid(SDA, -1);
 MFRC522::MIFARE_Key key;
 
 // configurações do wifi
-const char* ssid = "R$2,40 por MB"; // nome da sua rede wifi
-const char* password = "179753A3F6"; // senha da sua rede wifi
+const char* ssid = ""; // nome da sua rede wifi
+const char* password = ""; // senha da sua rede wifi
 
 // configurações do broker MQTT
 // usando HiveMQ
 const char* mqtt_server = "broker.hivemq.com";
 const int mqtt_port = 1883;
-const char* mqtt_topic = "e_presence/I_XII";
+const char* mqtt_topic = "e_presence/I_XII"; // idealmente o topico utilizado deve ser e_presence/{nome da sala da aula}
 
 // Cliente MQTT
 WiFiClient espClient;
@@ -91,7 +91,18 @@ void playErrorSound() {
 bool checkMatricula(String matricula) {
     const char* matriculaStr = matricula.c_str();
     for (int i=0;i<200;i++) 
-        if (strcmp(matricula.c_str(), matriculas[i].c_str())) return true;
+        if (strcmp(matricula.c_str(), matriculas[i].c_str()) == 0) return true;
+    return false;
+}
+
+// adiciona uma matricula na proxima posição disponivel no vetor de matriculas
+bool addMatricula(String matricula) {
+    for (int i=0;i<200;i++) {
+        if (strcmp(matriculas[i].c_str(), "") == 0) {
+            matriculas[i] = matricula;
+            return true;
+        }
+    }
     return false;
 }
 
@@ -104,38 +115,46 @@ void readNFC() {
     String matricula = "";
 
     // autentica e le o bloco 4 (nome)
-    if (rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(rfid.uid)) == MFRC522::STATUS_OK) {
-        if (rfid.MIFARE_Read(4, nome_buffer, &size) == MFRC522::STATUS_OK) {
-            for (int i=0;i<16;i++) 
-                if (nome_buffer[i] >= 32 && nome_buffer[i] <= 126) {
-                    nome += (char)nome_buffer[i];
-                }
-        } else {
-            playErrorSound();
-            return;
-        }
-    } else {
+    if (rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(rfid.uid)) != MFRC522::STATUS_OK) {
         playErrorSound();
         return;
     }
+    
+    if (rfid.MIFARE_Read(4, nome_buffer, &size) != MFRC522::STATUS_OK) {
+        playErrorSound();
+        return;
+    }
+
+    for (int i=0;i<16;i++) 
+        if (nome_buffer[i] >= 32 && nome_buffer[i] <= 126) {
+            nome += (char)nome_buffer[i];
+        }
+    
+    
 
     // autentica e le o bloco 5 (matricula)
-    if (rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 5, &key, &(rfid.uid)) == MFRC522::STATUS_OK) {
-        if (rfid.MIFARE_Read(5, matricula_buffer, &size) == MFRC522::STATUS_OK) {
-            for (int i=0;i<16;i++)
-                if (matricula_buffer[i] >= 32 && matricula_buffer[i] <= 126) {
-                    matricula += (char)matricula_buffer[i];
-                }
-        } else {
-            playErrorSound();
-            return;
-        }
-    } else {
+    if (rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 5, &key, &(rfid.uid)) != MFRC522::STATUS_OK) {
         playErrorSound();
         return;
     }
 
+    if (rfid.MIFARE_Read(5, matricula_buffer, &size) != MFRC522::STATUS_OK) {
+        playErrorSound();
+        return;
+    }
+
+    for (int i=0;i<16;i++)
+        if (matricula_buffer[i] >= 32 && matricula_buffer[i] <= 126) {
+            matricula += (char)matricula_buffer[i];
+        }
+    
+     
     if (checkMatricula(matricula)) {
+        playErrorSound();
+        return;
+    }
+
+    if (!addMatricula(matricula)) {
         playErrorSound();
         return;
     }
