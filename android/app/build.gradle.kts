@@ -6,6 +6,7 @@ plugins {
 }
 
 android {
+    ndkVersion = "30.0.3"
     namespace = "com.example.e_presence"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
