@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:e_presence/models/student.dart';
@@ -5,6 +6,8 @@ import 'package:e_presence/pages/home.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mqtt_client/mqtt_client.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -26,7 +29,17 @@ class ClassroomPage extends StatefulWidget {
 
 enum ClassState { inClass, endedClass }
 
-Future<void> _generateExcel(List<Student> students, String classRoomName) async {
+class _ClassroomPageState extends State<ClassroomPage> {
+  ClassState _classState = ClassState.inClass;
+  late final MqttServerClient client;
+
+  List<Student> students = [
+    Student(nome: 'Guilherme', matricula: 'GEC-1940'),
+    Student(nome: 'Eduardo', matricula: 'GEC-1939'),
+    Student(nome: 'Alexandre', matricula: 'GES-1254'),
+  ];
+
+  Future<void> _generateExcel(List<Student> students, String classRoomName) async {
     // criando planilha do excel
     final excel = Excel.createExcel();
     // acessando e formatando a data do dispositivo
@@ -56,15 +69,6 @@ Future<void> _generateExcel(List<Student> students, String classRoomName) async 
     await tempFile.delete();
     
   }
-
-class _ClassroomPageState extends State<ClassroomPage> {
-  ClassState _classState = ClassState.inClass;
-
-  List<Student> students = [
-    Student(nome: 'Guilherme', matricula: 'GEC-1940'),
-    Student(nome: 'Eduardo', matricula: 'GEC-1939'),
-    Student(nome: 'Alexandre', matricula: 'GES-1254'),
-  ];
 
   // de acordo com o estado atual da aula retorna o botão correto
   Widget _getButton() {
@@ -113,6 +117,60 @@ class _ClassroomPageState extends State<ClassroomPage> {
           ),
         );
     }
+  }
+
+  Future<void> _connectToBroker() async {
+    client.port = 1883;
+    client.logging(on: false);
+    client.onDisconnected = () {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('O cliente foi desconectado!'))
+      );
+    };
+    client.onConnected = () {
+      client.subscribe('e_presence/${widget.roomName}', MqttQos.atLeastOnce);
+    };
+    client.onSubscribed = (String topic) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Conectado a $topic com sucesso!'))
+      );
+    };
+    client.onSubscribeFail = (String topic) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Não foi possivel se conectar a $topic!'))
+      );
+    };
+
+    try {
+      await client.connect();
+      client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+        final message = c[0].payload as MqttPublishMessage;
+        final payload = MqttPublishPayload.bytesToStringAsString(message.payload.message);
+        final Map<String, String> data = jsonDecode(payload);
+        setState(() {
+          // cria novo student e envia pra lista students
+          students.add(Student(nome: data['nome']!, matricula: data['matricula']!));
+        });
+      });
+    } catch (e) {
+      print(e);
+      client.disconnect();
+      if (context.mounted) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ocorreu um erro ao se conectar!'))
+        );
+      }
+    }
+
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Iniciar o cliente MQTT com o nome da aula e o datetime para garantir unicidade no client id
+    client = MqttServerClient('broker.hivemq.com', '${widget.classRoomName}_${DateTime.now().millisecondsSinceEpoch}');
+    _connectToBroker();
   }
 
   @override
