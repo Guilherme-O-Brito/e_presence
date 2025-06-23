@@ -1,6 +1,6 @@
 # 📡 e-Presence: Sistema de Chamada IoT
 
-Projeto desenvolvido na disciplina **C114** na **INATEL**.
+Projeto desenvolvido na disciplina **C115** na **INATEL**.
 
 O objetivo é criar um **protótipo funcional de um sistema de chamadas por IoT**. A proposta é que cada sala de aula possua um **leitor NFC**, e os alunos registrem sua presença simplesmente ao **aproximarem a carteira da faculdade** do leitor. O professor acompanha os dados em **tempo real através de um aplicativo móvel**.
 
