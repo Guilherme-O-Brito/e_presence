@@ -27,7 +27,7 @@ const char* password = ""; // senha da sua rede wifi
 // usando HiveMQ
 const char* mqtt_server = "broker.hivemq.com";
 const int mqtt_port = 1883;
-const char* mqtt_topic = "e_presence/I_XII"; // idealmente o topico utilizado deve ser e_presence/{nome da sala da aula}
+const char* mqtt_topic = "e_presence/inatel/X_II"; // idealmente o topico utilizado deve ser e_presence/{nome da sala da aula}
 
 // Cliente MQTT
 WiFiClient espClient;
@@ -95,17 +95,6 @@ bool checkMatricula(String matricula) {
     return false;
 }
 
-// adiciona uma matricula na proxima posição disponivel no vetor de matriculas
-bool addMatricula(String matricula) {
-    for (int i=0;i<200;i++) {
-        if (strcmp(matriculas[i].c_str(), "") == 0) {
-            matriculas[i] = matricula;
-            return true;
-        }
-    }
-    return false;
-}
-
 // le a tag encontrada pelo sensor e envia a nome e matricula via mqtt
 void readNFC() {
     byte nome_buffer[18];
@@ -154,18 +143,19 @@ void readNFC() {
         return;
     }
 
-    if (!addMatricula(matricula)) {
-        playErrorSound();
-        return;
-    }
-
+    // adiciona a matricula lida na ultima posição disponivel no vetor de matriculas
+    for (int i=0;i<200;i++) 
+        if (strcmp(matriculas[i].c_str(), "") == 0) {
+            matriculas[i] = matricula;
+            break;
+        }
+    
+        
     String json = "{\"nome\":\"" + nome + "\", \"matricula\":\"" + matricula + "\"}";
     client.publish(mqtt_topic, json.c_str());
     Serial.println("Presenca enviada via MQTT");
 
-    // feedback visual e audivel da leitura concluida
-    digitalWrite(LED_VD, HIGH);
-    digitalWrite(LED_VM, LOW);  
+    // feedback visual e audivel da leitura concluida 
     playZeldaChestSound();
 
 }
