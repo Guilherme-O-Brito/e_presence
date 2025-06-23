@@ -20,9 +20,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'E-Presence',
       themeMode: ThemeMode.dark,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent, brightness: Brightness.dark)
       ),

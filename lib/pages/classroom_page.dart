@@ -84,6 +84,17 @@ class _ClassroomPageState extends State<ClassroomPage> {
             setState(() {
               client.disconnect();
               _classState = ClassState.endedClass;
+              // volta pro menu diretamente caso a lista de alunos esteja vazia
+              if (students.isEmpty) {
+                if (context.mounted) {
+                  Navigator.pushAndRemoveUntil(
+                    // ignore: use_build_context_synchronously
+                    context, 
+                    MaterialPageRoute(builder: (context) => Home()), 
+                    (Route<dynamic> route) => false,
+                  );
+                }
+              }
             });
           },
           child: Text('Encerrar Aula', style: TextStyle(fontSize: 20)),
@@ -127,7 +138,7 @@ class _ClassroomPageState extends State<ClassroomPage> {
       );
     };
     client.onConnected = () {
-      client.subscribe('e_presence/${widget.roomName}', MqttQos.atLeastOnce);
+      client.subscribe('e_presence/inatel/${widget.roomName}', MqttQos.atLeastOnce);
     };
     client.onSubscribed = (String topic) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -152,7 +163,6 @@ class _ClassroomPageState extends State<ClassroomPage> {
         });
       });
     } catch (e) {
-      print(e);
       client.disconnect();
       if (context.mounted) {
         // ignore: use_build_context_synchronously

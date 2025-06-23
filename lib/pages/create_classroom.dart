@@ -13,6 +13,7 @@ class _CreateClassroomState extends State<CreateClassroom> {
   final _classRoomName = TextEditingController();
   final _classRoomDesc = TextEditingController();
   final _roomName = TextEditingController();
+  final invalidCharacters = ['#', '+', '\$', '/', '\\', ' ', '\n', '\t']; // lista com caracteres invalidos para conexão com o broker
 
   @override
   void dispose() {
@@ -83,7 +84,13 @@ class _CreateClassroomState extends State<CreateClassroom> {
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'Informe a sala de aula';
-                        } 
+                        } else {
+                          for (final char in invalidCharacters) {
+                            if (value.contains(char)) {
+                              return 'O nome não pode conter ${invalidCharacters.join(" ")}';
+                            }
+                          }
+                        }
                         return null;
                       },
                     ),
