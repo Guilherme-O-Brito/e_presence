@@ -1,16 +1,62 @@
-# e_presence
+# 📡 e-Presence: Sistema de Chamada IoT
 
-A new Flutter project.
+Projeto desenvolvido na disciplina **C114** na **INATEL**.
 
-## Getting Started
+O objetivo é criar um **protótipo funcional de um sistema de chamadas por IoT**. A proposta é que cada sala de aula possua um **leitor NFC**, e os alunos registrem sua presença simplesmente ao **aproximarem a carteira da faculdade** do leitor. O professor acompanha os dados em **tempo real através de um aplicativo móvel**.
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## 🔧 Tecnologias Utilizadas
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **ESP32**: Microcontrolador principal
+- **RFID RC522**: Leitor NFC para cartões
+- **Flutter (Dart)**: Desenvolvimento do aplicativo mobile
+- **MQTT (HiveMQ)**: Comunicação entre o ESP32 e o app
+- **PlatformIO (C++)**: Ambiente de desenvolvimento da firmware
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## ⚙️ Pinagem do ESP32
+
+| Componente        | Pino ESP32 |
+|-------------------|------------|
+| Buzzer            | GPIO4        |
+| LED Verde (✔️)     | GPIO21       |
+| LED Vermelho (❌)  | GPIO22       |
+| SDA (CS)          | GPIO5        |
+| SCK               | GPIO18       |
+| MISO              | GPIO19       |
+| MOSI              | GPIO23       |
+
+> ⚠️ O leitor RFID RC522 deve ser alimentado com **3.3V** (⚠️ **não** use 5V).  
+> Também foram utilizados **resistores de 330Ω** nos LEDs.
+
+### 🖼️ Gabarito de Pinagem ESP32
+
+<img src="firmware/e_presence/esp_pinout.webp"/>
+
+---
+
+## 📁 Organização do Projeto
+
+- `firmware/e_presence/src/` → Código-fonte em C++ para o ESP32  
+- `lib/` → Código-fonte do app Flutter
+
+---
+
+## 📲 Funcionalidade
+
+- Alunos encostam o cartão no leitor ao entrar na sala
+- ESP32 lê o cartão e envia nome/matrícula via MQTT
+- Aplicativo do professor exibe a presença em tempo real
+- Feedback com som e LED informa sucesso ou falha
+
+---
+
+## 🚀 Demonstração
+
+> 💡 Em desenvolvimento ou prototipagem: ideal para testes com cartão NFC em laboratório.
+
+---
+
+Feito com C++ / Dart (Flutter).
