@@ -44,18 +44,26 @@ O objetivo é criar um **protótipo funcional de um sistema de chamadas por IoT*
 
 ---
 
+## 🚨 Avisos Importantes para Testes
+
+- Para testar o aplicativo é necessário:
+  - Usar um **emulador de celular** no computador **ou**
+  - **Compilar e instalar o app diretamente no celular.**
+
+- Sobre as **tags NFC**:
+  - O **nome do aluno** deve ser escrito no **bloco 0 do setor 1**.
+  - A **matrícula** deve ser escrita no **bloco 1 do setor 1**.
+  - Os dados devem ser em **hexadecimal ASCII**.
+  - Caso a string tenha menos de 16 bytes, **preencha o restante com `00`** até completar os 16 bytes de cada bloco.
+
+---
+
 ## 📲 Funcionalidade
 
 - Alunos encostam o cartão no leitor ao entrar na sala
 - ESP32 lê o cartão e envia nome/matrícula via MQTT
 - Aplicativo do professor exibe a presença em tempo real
 - Feedback com som e LED informa sucesso ou falha
-
----
-
-## 🚀 Demonstração
-
-> 💡 Em desenvolvimento ou prototipagem: ideal para testes com cartão NFC em laboratório.
 
 ---
 
